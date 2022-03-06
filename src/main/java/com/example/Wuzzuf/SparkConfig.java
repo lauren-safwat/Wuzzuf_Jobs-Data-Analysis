@@ -6,10 +6,12 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 public class SparkConfig {
@@ -21,7 +23,7 @@ public class SparkConfig {
 
     @Bean
     public SparkConf sparkConf() {
-        return new SparkConf().setAppName(appName).setMaster(masterUri);
+        return new SparkConf().setAppName(appName).setMaster(masterUri).set( "spark.driver.host", "localhost" );
     }
 
     @Bean
@@ -32,12 +34,18 @@ public class SparkConfig {
     @Bean
     public SparkSession sparkSession() {
         Logger.getLogger("org.apache").setLevel(Level.OFF);
-        return SparkSession.builder().sparkContext(javaSparkContext().sc()).appName(appName).master(masterUri).getOrCreate();
+        return SparkSession.builder().sparkContext(javaSparkContext().sc()).getOrCreate();
     }
 
     @Bean
-    public Dataset<Job> wuzzufJobs(){
-        return sparkSession().read().option("header","true").csv("src/main/resources/Wuzzuf_Jobs.csv").as(Encoders.bean(Job.class));
+    public Dataset<Row> readData(SparkSession sparkSession){
+        return sparkSession.read().option("header","true").csv("src/main/resources/Wuzzuf_Jobs.csv");
+        //.as(Encoders.bean(Job.class))
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 
 }
