@@ -38,9 +38,8 @@ public class SparkConfig {
     }
 
     @Bean
-    public Dataset<Row> readData(SparkSession sparkSession){
-        return sparkSession.read().option("header","true").csv("src/main/resources/Wuzzuf_Jobs.csv");
-        //.as(Encoders.bean(Job.class))
+    public Dataset<Job> readData(SparkSession sparkSession){
+        return sparkSession.read().option("header","true").csv("src/main/resources/Wuzzuf_Jobs.csv").as(Encoders.bean(Job.class));
     }
 
     @Bean

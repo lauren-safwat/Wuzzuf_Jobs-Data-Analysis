@@ -1,7 +1,5 @@
 package com.example.Wuzzuf;
 
-import java.util.List;
-
 public class Job {
     private String title;
     private String company;
@@ -10,7 +8,7 @@ public class Job {
     private String level;
     private String yearsExp;
     private String country;
-    private List<String> skills;
+    private String skills;
 
     public Job() {}
 
@@ -70,11 +68,11 @@ public class Job {
         this.country = country;
     }
 
-    public List<String> getSkills() {
+    public String getSkills() {
         return skills;
     }
 
-    public void setSkills(List<String> skills) {
+    public void setSkills(String skills) {
         this.skills = skills;
     }
 
