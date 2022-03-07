@@ -78,15 +78,6 @@ public class Job {
 
     @Override
     public String toString() {
-        return "Job{" +
-                "title='" + title + '\'' +
-                ", company='" + company + '\'' +
-                ", location='" + location + '\'' +
-                ", type='" + type + '\'' +
-                ", level='" + level + '\'' +
-                ", yearsExp='" + yearsExp + '\'' +
-                ", country='" + country + '\'' +
-                ", skills=" + skills +
-                '}';
+        return String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", title, company, location, type, level, yearsExp, country, skills);
     }
 }
