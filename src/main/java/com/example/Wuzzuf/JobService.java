@@ -1,10 +1,17 @@
 package com.example.Wuzzuf;
 
 import org.apache.spark.sql.*;
+import org.knowm.xchart.*;
+import org.knowm.xchart.style.Styler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,10 +60,10 @@ public class JobService implements JobDAO{
 
     @Override
     public String jobsPerCompany() {
-        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Company").agg(functions.count("Title").as("Number of Jobs")).sort(functions.desc("Number of Jobs"));
-        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).limit(15).collectAsList();
+        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Company").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).collectAsList();
 
-        String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most demanding companies for jobs") +
+        String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most Demanding Companies for Jobs") +
                 "<style>\n" +
                     "table {width: 70%; top: 0; margin-left: auto; margin-right: auto;}\n" +
                     "th {background: #99BBCB; position: sticky;}\n" +
@@ -73,8 +80,8 @@ public class JobService implements JobDAO{
 
     @Override
     public String mostPopularJobTitles() {
-        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Title").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
-        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).limit(15).collectAsList();
+        Dataset<Row> mostPopularJobs = wuzzufJobs.groupBy("Title").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        List<String> data = mostPopularJobs.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).collectAsList();
 
         String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most Popular Job Titles") +
                 "<style>\n" +
@@ -93,8 +100,8 @@ public class JobService implements JobDAO{
 
     @Override
     public String mostPopularAreas() {
-        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Location").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
-        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).limit(15).collectAsList();
+        Dataset<Row> mostPopularAreas = wuzzufJobs.groupBy("Location").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        List<String> data = mostPopularAreas.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).collectAsList();
 
         String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most Popular Areas") +
                 "<style>\n" +
@@ -112,29 +119,76 @@ public class JobService implements JobDAO{
     }
 
     @Override
-    public String displayPieChart() {
-//        PieChart pieChart = new PieChartBuilder().width(1200).height(500).
-//                title("Demanding Companies for Jobs").
-//                theme(Styler.ChartTheme.GGPlot2).build();
-////
-////            // Customize Chart
-////            pieChartChart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-//        pieChart.getStyler().setChartTitleVisible(true);
-//        pieChart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
-//        pieChart.getStyler().setMarkerSize(13);
-////            Color[] sliceColors = new Color[]{new Color (180, 68, 50), new Color (130, 105, 120),
-////                    new Color (80, 143, 160)};
-////            pieChart.getStyler ().setSeriesColors (sliceColors);
-////
-////            // Series
-////            Column job = jobDemandingCompanies.col("Job");
-////            Column com = jobDemandingCompanies.col("Company");
-//        for (Row r : job_Dem_Com) {
-//            pieChart.addSeries((String) r.get(0), (Number) r.get(1));
-//        }
-//
-////            // Display
-//        new SwingWrapper(pieChart).displayChart();
-        return "";
+    public void jobsPerCompanyPieChart() {
+        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Company").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+
+        PieChart pieChart = new PieChartBuilder().width(1200).height(700).title("Most Demanding Companies for Jobs Pie Chart").theme(Styler.ChartTheme.GGPlot2).build();
+
+        pieChart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
+
+        jobsPerCompany.limit(10).collectAsList().forEach(row -> pieChart.addSeries(row.getString(0), row.getLong(1)));
+
+        try {
+            BitmapEncoder.saveBitmap(pieChart, "src/main/resources/pieChart.png", BitmapEncoder.BitmapFormat.PNG);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void createBarChart(Dataset<Row> df, String title, String xLabel, String yLabel, String path) {
+        CategoryChart barChart = new CategoryChartBuilder().width(1200).height(700).title(title).xAxisTitle(xLabel).yAxisTitle(yLabel).build();
+
+        barChart.getStyler().setXAxisLabelRotation(45);
+
+        barChart.addSeries(xLabel, df.limit(10).map(job -> job.getString(0), Encoders.STRING()).collectAsList(), df.limit(10).map(job -> job.getLong(1), Encoders.LONG()).collectAsList());
+
+        try {
+            BitmapEncoder.saveBitmap(barChart, path, BitmapEncoder.BitmapFormat.PNG);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void mostPopularJobsBarChart() {
+        Dataset<Row> mostPopularJobs = wuzzufJobs.groupBy("Title").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        createBarChart(mostPopularJobs, "Most Popular Job Titles Bar Chart", "Job Titles", "Number of Vacancies", "src/main/resources/jobsBarChart.png");
+    }
+
+    @Override
+    public void mostPopularAreasBarChart() {
+        Dataset<Row> mostPopularAreas = wuzzufJobs.groupBy("Location").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        createBarChart(mostPopularAreas, "Most Popular Areas Bar Chart", "Area", "Number of Vacancies", "src/main/resources/areasBarChart.png");
+    }
+
+    @Override
+    public String mostRequiredSkills() {
+        wuzzufJobs.createOrReplaceTempView("WuzzufView");
+        Dataset<Row> skills = sparkSession.sql("SELECT skills FROM WuzzufView");
+        skills.createOrReplaceTempView("SkillsView");
+
+        Dataset<Row> mostRequiredSkills = skills.sqlContext().sql(
+                "SELECT Skill, count(Skill) AS Count\n" +
+                        "FROM (SELECT EXPLODE(SPLIT(skills, ',')) AS Skill FROM SkillsView)\n" +
+                        "GROUP BY Skill\n" +
+                        "ORDER BY Count DESC"
+        );
+
+        List<String> data = mostRequiredSkills.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).collectAsList();
+
+        String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most Important Skills Required") +
+                "<style>\n" +
+                    "table {width: 70%; top: 0; margin-left: auto; margin-right: auto;}\n" +
+                    "th {background: #99BBCB; position: sticky;}\n" +
+                    "th,td {padding: 8px 15px;}\n" +
+                    "table, th, td {border-collapse: collapse; border: 2px solid black;}\n" +
+                "</style>\n" +
+                "<table>\n" +
+                    "<tr> <th>Skill</th> <th>Count</th> </tr>" +
+                    String.join("", data) +
+                "</table>";
+
+        return response;
     }
 }
