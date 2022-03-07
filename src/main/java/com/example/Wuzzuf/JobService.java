@@ -3,7 +3,6 @@ package com.example.Wuzzuf;
 import org.apache.spark.sql.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.html.HTMLTableElement;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +53,88 @@ public class JobService implements JobDAO{
 
     @Override
     public String jobsPerCompany() {
-        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Company").agg(functions.count("Title").as("Number of jobs")).sort(functions.desc("Number of jobs"));
-        return null;
+        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Company").agg(functions.count("Title").as("Number of Jobs")).sort(functions.desc("Number of Jobs"));
+        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).limit(15).collectAsList();
+
+        String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most demanding companies for jobs") +
+                "<style>\n" +
+                    "table {width: 70%; top: 0; margin-left: auto; margin-right: auto;}\n" +
+                    "th {background: #99BBCB; position: sticky;}\n" +
+                    "th,td {padding: 8px 15px;}\n" +
+                    "table, th, td {border-collapse: collapse; border: 2px solid black;}\n" +
+                "</style>\n" +
+                "<table>\n" +
+                    "<tr> <th>Company</th> <th>Number of Jobs</th> </tr>" +
+                    String.join("", data) +
+                "</table>";
+
+        return response;
+    }
+
+    @Override
+    public String mostPopularJobTitles() {
+        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Title").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).limit(15).collectAsList();
+
+        String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most Popular Job Titles") +
+                "<style>\n" +
+                    "table {width: 70%; top: 0; margin-left: auto; margin-right: auto;}\n" +
+                    "th {background: #99BBCB; position: sticky;}\n" +
+                    "th,td {padding: 8px 15px;}\n" +
+                    "table, th, td {border-collapse: collapse; border: 2px solid black;}\n" +
+                "</style>\n" +
+                "<table>\n" +
+                    "<tr> <th>Job Title</th> <th>Number of Vacancies</th> </tr>" +
+                    String.join("", data) +
+                "</table>";
+
+        return response;
+    }
+
+    @Override
+    public String mostPopularAreas() {
+        Dataset<Row> jobsPerCompany = wuzzufJobs.groupBy("Location").agg(functions.count("Title").as("Count")).sort(functions.desc("Count"));
+        List<String> data = jobsPerCompany.map(row -> row.mkString("<tr><td>", "</td><td>", "</td></tr>"), Encoders.STRING()).limit(15).collectAsList();
+
+        String response = String.format("<h1 style=\"text-align:center; padding-top: 8px;\">%s</h1>", "Most Popular Areas") +
+                "<style>\n" +
+                    "table {width: 70%; top: 0; margin-left: auto; margin-right: auto;}\n" +
+                    "th {background: #99BBCB; position: sticky;}\n" +
+                    "th,td {padding: 8px 15px;}\n" +
+                    "table, th, td {border-collapse: collapse; border: 2px solid black;}\n" +
+                "</style>\n" +
+                "<table>\n" +
+                    "<tr> <th>Area</th> <th>Number of Vacancies</th> </tr>" +
+                    String.join("", data) +
+                "</table>";
+
+        return response;
+    }
+
+    @Override
+    public String displayPieChart() {
+//        PieChart pieChart = new PieChartBuilder().width(1200).height(500).
+//                title("Demanding Companies for Jobs").
+//                theme(Styler.ChartTheme.GGPlot2).build();
+////
+////            // Customize Chart
+////            pieChartChart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+//        pieChart.getStyler().setChartTitleVisible(true);
+//        pieChart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
+//        pieChart.getStyler().setMarkerSize(13);
+////            Color[] sliceColors = new Color[]{new Color (180, 68, 50), new Color (130, 105, 120),
+////                    new Color (80, 143, 160)};
+////            pieChart.getStyler ().setSeriesColors (sliceColors);
+////
+////            // Series
+////            Column job = jobDemandingCompanies.col("Job");
+////            Column com = jobDemandingCompanies.col("Company");
+//        for (Row r : job_Dem_Com) {
+//            pieChart.addSeries((String) r.get(0), (Number) r.get(1));
+//        }
+//
+////            // Display
+//        new SwingWrapper(pieChart).displayChart();
+        return "";
     }
 }
