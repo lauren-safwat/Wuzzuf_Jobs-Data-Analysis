@@ -1,4 +1,7 @@
-package com.example.Wuzzuf;
+package wuzzuf;
+
+import jdk.nashorn.internal.objects.annotations.Getter;
+import jdk.nashorn.internal.objects.annotations.Setter;
 
 public class Job {
     private String title;

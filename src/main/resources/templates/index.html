@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Wuzzuf Jobs Dataset Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <div class="title">
+        <h1 th:text="${title}"></h1>
+    </div>
+
+    <!-- Body content topic -->
+    <div class="row">
+        <div class="sidehoverbar">
+            <a href="http://localhost:8080/api/wuzzuf_jobs/sample" class="sample">
+                Sample from Dataset
+                <img src="/img/jobs.png">
+            </a>
+
+            <a href="http://localhost:8080/api/wuzzuf_jobs/schema" class="schema">
+                Structure & Summary
+                <img src="/img/schema.png">
+            </a>
+
+            <a href="http://localhost:8080/api/wuzzuf_jobs/clean" class="clean">
+                Clean Dataset
+                <img src="/img/data-cleaning.png">
+            </a>
+
+            <a href="http://localhost:8080/api/wuzzuf_jobs/most_demanding_companies" class="most_demanding_companies">
+                Most Demanding Companies
+                <img src="/img/enterprise.png">
+            </a>
+
+            <a href="http://localhost:8080/api/wuzzuf_jobs/most_popular_job_titles" class="most_popular_job_titles">
+                Most Popular Job Titles
+                <img src="/img/dashboard.png">
+            </a>
+
+            <a href="http://localhost:8080/api/wuzzuf_jobs/most_popular_areas" class="most_popular_areas">
+                Most Popular Areas
+                <img src="/img/areas.png">
+            </a>
+
+            <a href="http://localhost:8080/api/wuzzuf_jobs/most_required_skills" class="most_required_skills">
+                Most Required Skills
+                <img src="/img/skills.png">
+            </a>
+        </div>
+
+        <div class="response" th:utext="${response}"></div>
+    </div>
+</body>
+</html>

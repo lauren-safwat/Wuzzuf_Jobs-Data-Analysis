@@ -1,4 +1,4 @@
-package com.example.Wuzzuf;
+package wuzzuf;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

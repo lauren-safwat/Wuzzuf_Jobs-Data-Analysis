@@ -1,4 +1,4 @@
-package com.example.Wuzzuf;
+package wuzzuf;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -6,7 +6,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
